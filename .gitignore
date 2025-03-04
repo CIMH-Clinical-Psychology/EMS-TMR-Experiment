@@ -2,10 +2,12 @@
 __pycache__/
 *.py[cod]
 *$py.class
-
+.directory
+data/
+stimuli/
 # C extensions
 *.so
-
+_lastrun.py
 # Distribution / packaging
 .Python
 build/
