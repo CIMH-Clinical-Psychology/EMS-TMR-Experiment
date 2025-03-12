@@ -14,19 +14,25 @@ it will create the following files per participant
 import os
 import random
 import warnings
+import networkx as nx
 import numpy as np
 import pandas as pd
+import debruijn
 from collections import Counter, defaultdict
 os.makedirs('sequences', exist_ok=True)
 
 #%% SETTINGS
 categories = ['car', 'face', 'flower', 'dog']
 
-n_participants = 32 # how many participants should be created
-n_localizer = 240   # how many localizer images
-n_pairings = 120    # how many word pairings we want to create
-n_cued = 60         # how many words should be cued at night
+n_participants = 32      # how many participants should be created
+n_localizer = 256        # how many localizer images
+n_pairings = 120         # how many word pairings we want to create
+n_cued = 60              # how many words should be cued at night
+n_lures_retrieval = 60   # how many new images to insert into retrieval session
+perc_upside_down = 0.1   # how many images should be presented upside down in localizer
 n_categories = len(categories)
+
+t_iti_localizer = 1.5
 
 # check that we can evenly divide the categories to the trials
 assert n_localizer%n_categories==0  # check we can evenly divide n_localizer
@@ -43,12 +49,14 @@ all_pairings = set()  # Track all word-image pairings used to avoid duplicates
 all_words = list(pd.read_csv('stimuli/words.csv').values.squeeze())
 
 # Verify we have exactly the number of words needed
-assert len(all_words) == n_pairings, f"Expected exactly {n_pairings} words, got {len(all_words)}"
+assert len(all_words) == n_pairings+n_lures_retrieval, f"Expected exactly {n_pairings} words, got {len(all_words)}"
 
 # Load all images once or create mock data if needed
 all_images = {}
 for category in categories:
-    all_images[category] = os.listdir(f'stimuli/{category}/')
+    files = sorted(os.listdir(f'stimuli/{category}/'))
+    files = [f'{category}/{f}' for f in files if f.endswith('.png')]
+    all_images[category] = files
 
 # Create word-category tracker for balancing word assignments across participants
 word_category_participant = {word: defaultdict(set) for word in all_words}
@@ -62,37 +70,58 @@ for subj in range(n_participants):
 
     # Create a copy of available images for this participant
     images = {cat: all_images[cat].copy() for cat in categories}
-
-    #%% localizer
+    words = all_words.copy()
+    #%% 1 localizer
     ### 1. Create localizer sequence
+
     df_localizer = pd.DataFrame()
-    for category in categories:
-        n_per_category = n_localizer//n_categories
-        random.shuffle(images[category])  # shuffle before sorting
 
-        # Sort images by usage to prioritize less used ones
-        sorted_images = sorted(images[category],
-                              key=lambda img: counter_localizer.get(f"{img}/{category}", 0))
-        imgs = sorted_images[:n_per_category]
+    # create sequence with subsequence tuples of length 4
+    # each letter stands for a specific category
+    alphabet = [chr(65 + i) for i in range(len(categories))]
+    sequence = list(debruijn.random_debruijn_sequence(alphabet, 4, repeating=True))
 
-        df_tmp = pd.DataFrame({'imgs': imgs, 'category': category})
-        df_localizer = pd.concat([df_localizer, df_tmp])
+    # replace with actual categories
+    sequence = list(map(lambda x: categories[ord(x)-65], sequence))
 
-        # Update usage counter and remove chosen images from available set
-        for img in imgs:
-            counter_localizer[f"{img}/{category}"] += 1
+    df_localizer = pd.DataFrame({'category': sequence,
+                                 'image': 'N/A'})
+
+    n_localizer_per_category = n_localizer // n_categories
+
+    for char, category in zip(alphabet, categories):
+        images_category = images[category][:n_localizer_per_category]
+        random.shuffle(images_category)
+        df_localizer.loc[df_localizer.category==category, 'image'] = images_category
+
+        # remove these images so they can't be used later again accidentially
+        for img in images_category:
             images[category].remove(img)
 
+
+    # create inter trial interval by sampling from a normal distribution around 1.5
+    localizer_iti =  np.random.normal(t_iti_localizer, 0.15, size=n_localizer)
+    localizer_iti[localizer_iti<1] = 1
+    localizer_iti[localizer_iti>2] = 2
+    df_localizer['iti'] = localizer_iti
+
+    # distribute distractors
+    # TODO: make balanced
+    n_distractor = int(len(df_localizer) * perc_upside_down)
+    idx_distractor = np.random.choice(np.arange(n_localizer), n_distractor)
+    list_distractors = np.zeros(n_localizer, dtype=bool)
+    list_distractors[idx_distractor] = True
+    df_localizer['distractor'] = list_distractors
+
     # just shuffle the list
-    df_localizer = df_localizer.sample(frac=1).reset_index(drop=True)
-    df_localizer.to_csv(f'sequences/{subj:02d}_localizer.csv')
+    df_localizer.to_excel(f'sequences/{subj:02d}_localizer.xlsx')
 
     #%% pairings
 
     # 2. Create word-image pairings with balanced distribution
     # Clone the words list for this participant
-    participant_words = all_words.copy()
-    random.shuffle(participant_words)
+    words_paired = words[:n_pairings]
+    random.shuffle(words_paired)
 
     # Distribute words evenly across categories for this participant
     words_per_category = n_pairings // n_categories
@@ -101,16 +130,19 @@ for subj in range(n_participants):
     # Ensure balanced category assignment across participants
     for category in categories:
         # Sort words by how often they've been assigned to this category
-        sorted_words = sorted(participant_words,
-                             key=lambda w: len(word_category_participant[w][category]))
+        # add randomness for within-same-occurence-count sorting
+        sorted_words = sorted(words_paired,
+                              key=lambda w: len(word_category_participant[w][category])+
+                                                  np.random.rand())
 
         # Assign words to this category
         category_words = sorted_words[:words_per_category]
 
         for word in category_words:
             word_category_assignments.append((word, category))
-            participant_words.remove(word)
             word_category_participant[word][category].add(subj)
+            words.remove(word)
+            words_paired.remove(word)
 
     random.shuffle(word_category_assignments)
 
@@ -118,23 +150,22 @@ for subj in range(n_participants):
     df_pairings = pd.DataFrame()
     for i, (word, category) in enumerate(word_category_assignments):
         # Get least used images for this category
-        available_cat_images = images[category].copy()
-        sorted_images = sorted(available_cat_images,
-                              key=lambda img: image_usage_counter.get(f"{img}/{category}", 0))
+        n_pairings_per_cat = len(word_category_assignments) // n_categories
+        images_cat = images[category][:n_pairings_per_cat]
+        random.shuffle(images_cat)
 
         # Find an image that hasn't been paired with this word
         img = None
-        for potential_img in sorted_images:
+        for potential_img in images_cat:
             if (potential_img, word) not in all_pairings:
                 img = potential_img
                 break
-
-        if img is None:
-            warnings.warn(f"Cannot find image for {category} for participant {subj}")
-            continue
+        else:
+            raise Exception(f"Cannot find image for {category} for participant {subj}")
 
         # Update tracking
         images[category].remove(img)
+
         image_usage_counter[f"{img}/{category}"] += 1
         all_pairings.add((img, word))
 
@@ -143,12 +174,12 @@ for subj in range(n_participants):
                                                           'category': category},
                                                           index=[i])])
 
-    df_pairings.to_csv(f'sequences/{subj:02d}_pairings.csv')
+    df_pairings.to_excel(f'sequences/{subj:02d}_pairings.xlsx')
 
     #%% 3. Select TMR cues with balanced distribution
-    cued_categories = np.random.choice(categories, size=2, replace=False)
-    df_cues = pd.DataFrame()
+    cued_categories = [categories[subj%n_categories], categories[(subj+1)% n_categories]]
 
+    df_cues = pd.DataFrame()
     for category in cued_categories:
         df_possible_words = df_pairings[df_pairings.category==category]
         df_possible_words = df_possible_words.sample(frac=1).reset_index(drop=True)
@@ -156,7 +187,7 @@ for subj in range(n_participants):
         # Sort words by how often they've been used as cues
         sorted_words = df_possible_words.sort_values(
             by='word',
-            key=lambda col: col.map(lambda w: word_cue_counter.get(w, 0))
+            key=lambda col: col.map(lambda w: word_cue_counter.get(w, 0)) + np.random.rand()
         )
 
         # Select the least cued words
@@ -167,13 +198,25 @@ for subj in range(n_participants):
         for word in selected_rows['word']:
             word_cue_counter[word] += 1
 
-    # Sanity check for duplicates
     df_cues = df_cues.sample(frac=1).reset_index(drop=True)
 
+    # Sanity check for duplicates
     assert len(set(df_cues.word)) == len(df_cues), 'Sanity check failed, some words are doubled'
 
     # Shuffle dataframe to randomize presentation order
-    df_cues.to_csv(f'sequences/{subj:02d}_cues.csv')
+    df_cues.to_excel(f'sequences/{subj:02d}_cues.xlsx')
+
+    #%% 4. retrieval cue selection
+    # lure words -> distribution?
+    # category for lures
+
+    df_retrieval = pd.DataFrame()
+
+    n_retrieval = n_pairings + n_lures_retrieval
+
+
+    df_retrieval.to_excel(f'sequences/{subj:02d}_retrieval.xlsx')
+
 
 #%% Final distribution checks
 print("\n=== DISTRIBUTION STATISTICS ===")
