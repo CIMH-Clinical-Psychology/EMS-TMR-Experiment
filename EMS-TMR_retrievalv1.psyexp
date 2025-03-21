@@ -179,24 +179,6 @@
         <Param val="" valType="code" updates="constant" name="stopVal"/>
         <Param val="False" valType="bool" updates="None" name="useWindowParams"/>
       </RoutineSettingsComponent>
-      <SoundComponent name="verb" plugin="None">
-        <Param val="" valType="str" updates="None" name="deviceLabel"/>
-        <Param val="False" valType="bool" updates="None" name="disabled"/>
-        <Param val="" valType="code" updates="None" name="durationEstim"/>
-        <Param val="True" valType="bool" updates="constant" name="hamming"/>
-        <Param val="verb" valType="code" updates="None" name="name"/>
-        <Param val="True" valType="bool" updates="None" name="saveStartStop"/>
-        <Param val="C:/Users/elena/Downloads/de_albern.wav" valType="str" updates="set every repeat" name="sound"/>
-        <Param val="4.0" valType="code" updates="None" name="speakerIndex"/>
-        <Param val="" valType="code" updates="None" name="startEstim"/>
-        <Param val="time (s)" valType="str" updates="None" name="startType"/>
-        <Param val="0.0" valType="code" updates="None" name="startVal"/>
-        <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
-        <Param val="1" valType="code" updates="constant" name="stopVal"/>
-        <Param val="True" valType="bool" updates="constant" name="stopWithRoutine"/>
-        <Param val="True" valType="bool" updates="constant" name="syncScreenRefresh"/>
-        <Param val="1" valType="num" updates="constant" name="volume"/>
-      </SoundComponent>
       <TextComponent name="fixation" plugin="None">
         <Param val="-1.0000, -1.0000, -1.0000" valType="color" updates="constant" name="color"/>
         <Param val="rgb" valType="str" updates="constant" name="colorSpace"/>
@@ -230,7 +212,7 @@
         <Param val="" valType="extendedCode" updates="constant" name="Begin Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
         <Param val="df_trial = df_retrieval.iloc[i_retrieval];&amp;#10;console.log(df_trial);&amp;#10;verb.status = PsychoJS.Status.FINISHED;&amp;#10;played = false;&amp;#10;verb.sound = `stimuli/sounds/de_${df_trial.word}`;&amp;#10;console.log(verb);&amp;#10;is_newword = df_trial.is_new;&amp;#10;console.log(is_newword);&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
-        <Param val="df_trial = df_retrieval.iloc[i_retrieval]&amp;#10;print (df_trial)&amp;#10;&amp;#10;# prevent inactive sound from blocking trial finish&amp;#10;verb.status = FINISHED&amp;#10;played = False&amp;#10;&amp;#10;verb.sound = f&quot;stimuli/sounds/de_{df_trial.word}&quot;&amp;#10;print (verb)&amp;#10;is_newword = df_trial.is_new&amp;#10;print (is_newword)&amp;#10;&amp;#10;&amp;#10;&amp;#10;#msg = f'retrieval {i_retrieval}/{len(df_trial)}'&amp;#10;#msg += f' {&quot;[FLIPPED]&quot; if is_newword else &quot;&quot;} isi={t_isi_localizer:.2f}s'&amp;#10;#print(msg)" valType="extendedCode" updates="constant" name="Begin Routine"/>
+        <Param val="&amp;#10;verb.setSound(&quot;stimuli/sounds/de_&quot; + df_trial.word)&amp;#10;verb.play() # play the sound&amp;#10;print (verb)&amp;#10;&amp;#10;is_newword = bool (&quot;WAHR&quot; in df_trial.is_new)&amp;#10;print (is_newword)&amp;#10;" valType="extendedCode" updates="constant" name="Begin Routine"/>
         <Param val="Py" valType="str" updates="None" name="Code Type"/>
         <Param val="" valType="extendedCode" updates="constant" name="Each Frame"/>
         <Param val="" valType="extendedCode" updates="constant" name="Each JS Frame"/>
@@ -241,6 +223,24 @@
         <Param val="False" valType="bool" updates="None" name="disabled"/>
         <Param val="code_8" valType="code" updates="None" name="name"/>
       </CodeComponent>
+      <SoundComponent name="verb" plugin="None">
+        <Param val="" valType="str" updates="None" name="deviceLabel"/>
+        <Param val="False" valType="bool" updates="None" name="disabled"/>
+        <Param val="" valType="code" updates="None" name="durationEstim"/>
+        <Param val="True" valType="bool" updates="constant" name="hamming"/>
+        <Param val="verb" valType="code" updates="None" name="name"/>
+        <Param val="True" valType="bool" updates="None" name="saveStartStop"/>
+        <Param val="&quot;stimuli/sounds/de_&quot; + df_trial.word" valType="str" updates="set every repeat" name="sound"/>
+        <Param val="-1" valType="code" updates="None" name="speakerIndex"/>
+        <Param val="" valType="code" updates="None" name="startEstim"/>
+        <Param val="time (s)" valType="str" updates="None" name="startType"/>
+        <Param val="0.0" valType="code" updates="None" name="startVal"/>
+        <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
+        <Param val="1.0" valType="code" updates="constant" name="stopVal"/>
+        <Param val="True" valType="bool" updates="constant" name="stopWithRoutine"/>
+        <Param val="True" valType="bool" updates="constant" name="syncScreenRefresh"/>
+        <Param val="1" valType="num" updates="constant" name="volume"/>
+      </SoundComponent>
     </Routine>
     <Routine name="decision_newword">
       <RoutineSettingsComponent name="decision_newword" plugin="None">
@@ -519,7 +519,7 @@
         <Param val="" valType="extendedCode" updates="constant" name="Begin Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
         <Param val="image_choice1.image = (&quot;stimuli/&quot; + df_trial.image1);&amp;#10;image_choice2.image = (&quot;stimuli/&quot; + df_trial.image2);&amp;#10;image_choice3.image = (&quot;stimuli/&quot; + df_trial.image3);&amp;#10;image_choice4.image = (&quot;stimuli/&quot; + df_trial.image4);&amp;#10;correct_image = (&quot;stimuli/&quot; + df_trial.correctimage);&amp;#10;if ((correct_image === image_choice1.img)) {&amp;#10;    correct_buttonpress = [&quot;g&quot;];&amp;#10;} else {&amp;#10;    if ((correct_image === image_choice2.img)) {&amp;#10;        correct_buttonpress = [&quot;y&quot;];&amp;#10;    } else {&amp;#10;        if ((correct_image === image_choice3.img)) {&amp;#10;            correct_buttonpress = [&quot;b&quot;];&amp;#10;        } else {&amp;#10;            correct_buttonpress = [&quot;r&quot;];&amp;#10;        }&amp;#10;    }&amp;#10;}&amp;#10;button_press = psychoJS.eventManager.getKeys();&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
-        <Param val="&amp;#10;image_choice1.image = &quot;stimuli/&quot; + df_trial.image1&amp;#10;image_choice2.image = &quot;stimuli/&quot; + df_trial.image2&amp;#10;image_choice3.image = &quot;stimuli/&quot; + df_trial.image3&amp;#10;image_choice4.image = &quot;stimuli/&quot; + df_trial.image4&amp;#10;&amp;#10;if df_trial.correct != None:&amp;#10;    correct_image = &quot;stimuli/&quot; + df_trial.correct&amp;#10;elif df_trial.correct == None:&amp;#10;        correct_image = False&amp;#10;&amp;#10;#define correct_buttonpress&amp;#10;if correct_image == image_choice1.image:&amp;#10;    correct_buttonpress = [&quot;r&quot;]&amp;#10;elif correct_image == image_choice2.image:&amp;#10;    correct_buttonpress = [&quot;b&quot;]&amp;#10;elif correct_image == image_choice3.image:&amp;#10;    correct_buttonpress = [&quot;y&quot;]&amp;#10;elif correct_image == image.choice4.image:&amp;#10;    correct_buttonpress = [&quot;g&quot;]&amp;#10;elif correct_image == False:&amp;#10;    correct_buttonpress = []&amp;#10;else:&amp;#10;    print (&quot;error&quot;)&amp;#10;    &amp;#10;button_press = event.getKeys()" valType="extendedCode" updates="constant" name="Begin Routine"/>
+        <Param val="&amp;#10;image_choice1.image = &quot;stimuli/&quot; + df_trial.image1&amp;#10;image_choice2.image = &quot;stimuli/&quot; + df_trial.image2&amp;#10;image_choice3.image = &quot;stimuli/&quot; + df_trial.image3&amp;#10;image_choice4.image = &quot;stimuli/&quot; + df_trial.image4&amp;#10;&amp;#10;if df_trial.correct != None:&amp;#10;    correct_image = &quot;stimuli/&quot; + df_trial.correct&amp;#10;elif df_trial.correct == &quot;N/A&quot;:&amp;#10;    correct_image = False&amp;#10;&amp;#10;#define correct_buttonpress&amp;#10;if correct_image == image_choice1.image:&amp;#10;    correct_buttonpress = [&quot;r&quot;]&amp;#10;elif correct_image == image_choice2.image:&amp;#10;    correct_buttonpress = [&quot;b&quot;]&amp;#10;elif correct_image == image_choice3.image:&amp;#10;    correct_buttonpress = [&quot;y&quot;]&amp;#10;elif correct_image == image_choice4.image:&amp;#10;    correct_buttonpress = [&quot;g&quot;]&amp;#10;elif correct_image == False:&amp;#10;    correct_buttonpress = []&amp;#10;else:&amp;#10;    print (&quot;error&quot;)&amp;#10;    &amp;#10;button_press = event.getKeys()" valType="extendedCode" updates="constant" name="Begin Routine"/>
         <Param val="Py" valType="str" updates="None" name="Code Type"/>
         <Param val="if misses == initial_value_misses and false_alarms == initial_value_false_alarms \&amp;#10;and button_press != correct_buttonpress and len (button_press) != []:&amp;#10;    incorrect_associations = incorrect_associations + 1&amp;#10;&amp;#10;if key_resp_retrieval.status == FINISHED and len (button_press) == []:&amp;#10;    print (&quot;no answer&quot;)&amp;#10;    text_8.text = &quot;&quot;&quot;Du musst schneller antworten!&quot;&quot;&quot;&amp;#10;    text_8.color = red" valType="extendedCode" updates="constant" name="Each Frame"/>
         <Param val="if (((((misses === initial_value_misses) &amp;&amp; (false_alarms === initial_value_false_alarms)) &amp;&amp; (button_press !== correct_buttonpress)) &amp;&amp; (button_press.length !== 0))) {&amp;#10;    incorrect_associations = (incorrect_associations + 1);&amp;#10;}&amp;#10;if (((key_resp_retrieval.status === PsychoJS.Status.FINISHED) &amp;&amp; (button_press.length === 0))) {&amp;#10;    console.log(&quot;no answer&quot;);&amp;#10;    text_8.text = &quot;Du musst schneller antworten!&quot;;&amp;#10;}&amp;#10;" valType="extendedCode" updates="constant" name="Each JS Frame"/>
@@ -1213,7 +1213,7 @@
       <CodeComponent name="startup" plugin="None">
         <Param val="&amp;#10;" valType="extendedCode" updates="constant" name="Before Experiment"/>
         <Param val="import * as pd from 'pandas';&amp;#10;subj_id = expInfo[&quot;participant&quot;];&amp;#10;session = expInfo[&quot;session&quot;];&amp;#10;df_retrieval = pd.read_excel(`C:/Users/elena/Nextcloud/Masterthesis_EMS-TMR/EMS-TMR-Experiment/sequences/${subj_id}_retrieval.xlsx`);&amp;#10;i_retrieval = 0;&amp;#10;initial_value_misses = 0;&amp;#10;initial_value_false_alarms = 0;&amp;#10;initial_value_incorrect_associations = 0;&amp;#10;false_alarms = 0;&amp;#10;misses = 0;&amp;#10;incorrect_associations = 0;&amp;#10;n_retrieval_trials = (Math.max(df_retrieval.trial) + 1);&amp;#10;n_retrieval_trials_prac = 6;&amp;#10;n_retrieval_repetition = 3;&amp;#10;if (PILOTING) {&amp;#10;    n_retrieval_trials = 5;&amp;#10;}&amp;#10;console.log(&quot;DUMMY TRIALS: subj_id is set to 0&quot;);&amp;#10;i_retrieval = 0;&amp;#10;n_retrieval_trials_prac = 6;&amp;#10;" valType="extendedCode" updates="constant" name="Before JS Experiment"/>
-        <Param val="import pandas as pd&amp;#10;pip install psychopy-pyo&amp;#10;&amp;#10;subj_id = expInfo['participant']&amp;#10;session = expInfo[&quot;session&quot;]&amp;#10;&amp;#10;df_retrieval = pd.read_excel(f&quot;C:/Users/elena/Nextcloud/Masterthesis_EMS-TMR/EMS-TMR-Experiment/sequences/{subj_id}_retrieval.xlsx&quot;)&amp;#10;&amp;#10;# set variables we will access later&amp;#10;i_retrieval = 0&amp;#10;initial_value_misses = 0&amp;#10;initial_value_false_alarms = 0&amp;#10;initial_value_incorrect_associations = 0&amp;#10;&amp;#10;# store answers&amp;#10;false_alarms = 0&amp;#10;misses = 0&amp;#10;incorrect_associations = 0&amp;#10;&amp;#10;# set the number of repetitions we have&amp;#10;n_retrieval_trials = df_retrieval.shape[0]&amp;#10;n_retrieval2_trials = df_retrieval.shape [0]&amp;#10;n_retrieval_trials_prac = 6&amp;#10;&amp;#10;if PILOTING:&amp;#10;    n_retrieval_trials = 5&amp;#10;    n_retrieval2_trials = 3&amp;#10;    n_retrieval_trials_prac = 6&amp;#10;    print('DUMMY TRIALS: subj_id is set to 0')&amp;#10;&amp;#10;" valType="extendedCode" updates="constant" name="Begin Experiment"/>
+        <Param val="import pandas as pd&amp;#10;&amp;#10;subj_id = expInfo['participant']&amp;#10;session = expInfo[&quot;session&quot;]&amp;#10;&amp;#10;df_retrieval_1 = pd.read_excel(f&quot;C:/Users/elena/Nextcloud/Masterthesis_EMS-TMR/EMS-TMR-Experiment/sequences/{subj_id}_retrieval_1.xlsx&quot;)&amp;#10;df_retrieval_2 = pd.read_excel(f&quot;C:/Users/elena/Nextcloud/Masterthesis_EMS-TMR/EMS-TMR-Experiment/sequences/{subj_id}_retrieval_2.xlsx&quot;)&amp;#10;df_retrieval_3 = pd.read_excel(f&quot;C:/Users/elena/Nextcloud/Masterthesis_EMS-TMR/EMS-TMR-Experiment/sequences/{subj_id}_retrieval_3.xlsx&quot;)&amp;#10;&amp;#10;# set variables we will access later&amp;#10;i_retrieval = 0&amp;#10;initial_value_misses = 0&amp;#10;initial_value_false_alarms = 0&amp;#10;initial_value_incorrect_associations = 0&amp;#10;&amp;#10;##set sound to a different samplerate!!!&amp;#10;verb = sound.Sound('A', stereo= True, hamming=True, secs=-1, sampleRate= 24000)&amp;#10;&amp;#10;&amp;#10;# store answers&amp;#10;false_alarms = 0&amp;#10;misses = 0&amp;#10;incorrect_associations = 0&amp;#10;&amp;#10;# set the number of repetitions we have&amp;#10;n_retrieval_trials = df_retrieval_1.shape[0]&amp;#10;n_retrieval2_trials = df_retrieval_3.shape [0]&amp;#10;n_retrieval_trials_prac = 6&amp;#10;&amp;#10;if PILOTING:&amp;#10;    n_retrieval_trials = 5&amp;#10;    n_retrieval2_trials = 3&amp;#10;    n_retrieval_trials_prac = 6&amp;#10;    print('DUMMY TRIALS: subj_id is set to 0')&amp;#10;&amp;#10;" valType="extendedCode" updates="constant" name="Begin Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
         <Param val="" valType="extendedCode" updates="constant" name="Begin Routine"/>
@@ -1230,8 +1230,8 @@
       <CodeComponent name="settings" plugin="None">
         <Param val="" valType="extendedCode" updates="constant" name="Before Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="Before JS Experiment"/>
-        <Param val="t_img_retrieval = 5&amp;#10;t_isi_retrieval = 2.5&amp;#10;t_buffer = 10&amp;#10;image_size = 0.5&amp;#10;t_fixation_cross = 1.5&amp;#10;&amp;#10;&amp;#10;n_retrieval_trials_prac = 6&amp;#10;n_retrieval_trials = 188&amp;#10;n_retrieval2_trials = 188&amp;#10;cross_color = (-0.5, -0.5, -0.5)&amp;#10;letter_height=0.06&amp;#10;language = &quot;german&quot;&amp;#10;&amp;#10;# 2. session&amp;#10;if session==str(2):&amp;#10;    retrieval_trials_prac.finished = TRUE&amp;#10;    retrieval_repetition.finished = TRUE&amp;#10;    retrieval_trials.finished = TRUE&amp;#10;&amp;#10;#trigger müssen noch richtig definiert werden&amp;#10;trigger_img = {}&amp;#10;trigger_img['dog'] = 1&amp;#10;trigger_img['car']   = 2&amp;#10;trigger_img['flower']   = 3&amp;#10;trigger_img['face']   = 4&amp;#10;&amp;#10;trigger_break_start = 91&amp;#10;trigger_break_stop = 92&amp;#10;trigger_buf_start = 61&amp;#10;trigger_buf_stop = 62&amp;#10;trigger_fixation_pre1 = 81&amp;#10;trigger_fixation_pre2 = 82&amp;#10;&amp;#10;# these get added depending on the trial&amp;#10;# ie. Gesicht in localizer = 1, as cue = 11, as sequence=21&amp;#10;trigger_base_val_retrieval = 0&amp;#10;trigger_base_val_retrieval_distractor = 100" valType="extendedCode" updates="constant" name="Begin Experiment"/>
-        <Param val="t_img_retrieval = 5;&amp;#10;t_isi_retrieval = 2.5;&amp;#10;t_buffer = 10;&amp;#10;image_size = 0.5;&amp;#10;t_fixation_cross = 1.5;&amp;#10;n_retrieval_trials_prac = 6;&amp;#10;n_retrieval_trials = 188;&amp;#10;n_retrieval2_trials = 188;&amp;#10;cross_color = [(- 0.5), (- 0.5), (- 0.5)];&amp;#10;letter_height = 0.06;&amp;#10;language = &quot;german&quot;;&amp;#10;if ((session === 2.toString())) {&amp;#10;    retrieval_trials_prac.finished = TRUE;&amp;#10;    retrieval_repetition.finished = TRUE;&amp;#10;    retrieval_trials.finished = TRUE;&amp;#10;}&amp;#10;trigger_img = {};&amp;#10;trigger_img[&quot;dog&quot;] = 1;&amp;#10;trigger_img[&quot;car&quot;] = 2;&amp;#10;trigger_img[&quot;flower&quot;] = 3;&amp;#10;trigger_img[&quot;face&quot;] = 4;&amp;#10;trigger_break_start = 91;&amp;#10;trigger_break_stop = 92;&amp;#10;trigger_buf_start = 61;&amp;#10;trigger_buf_stop = 62;&amp;#10;trigger_fixation_pre1 = 81;&amp;#10;trigger_fixation_pre2 = 82;&amp;#10;trigger_base_val_retrieval = 0;&amp;#10;trigger_base_val_retrieval_distractor = 100;&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
+        <Param val="t_img_retrieval = 5&amp;#10;t_isi_retrieval = 2.5&amp;#10;t_buffer = 10&amp;#10;image_size = 0.5&amp;#10;t_fixation_cross = 1.5&amp;#10;&amp;#10;&amp;#10;n_retrieval_trials_prac = 6&amp;#10;n_retrieval_trials = 188&amp;#10;n_retrieval2_trials = 188&amp;#10;cross_color = (-0.5, -0.5, -0.5)&amp;#10;letter_height=0.06&amp;#10;language = &quot;german&quot;&amp;#10;&amp;#10;# 2. session&amp;#10;if session==str(2):&amp;#10;    retrieval_trials_prac.finished = True&amp;#10;    retrieval_repetition.finished = True&amp;#10;    retrieval_trials.finished = True&amp;#10;&amp;#10;#trigger müssen noch richtig definiert werden&amp;#10;trigger_img = {}&amp;#10;trigger_img['dog'] = 1&amp;#10;trigger_img['car']   = 2&amp;#10;trigger_img['flower']   = 3&amp;#10;trigger_img['face']   = 4&amp;#10;&amp;#10;trigger_break_start = 91&amp;#10;trigger_break_stop = 92&amp;#10;trigger_buf_start = 61&amp;#10;trigger_buf_stop = 62&amp;#10;trigger_fixation_pre1 = 81&amp;#10;trigger_fixation_pre2 = 82&amp;#10;&amp;#10;# these get added depending on the trial&amp;#10;# ie. Gesicht in localizer = 1, as cue = 11, as sequence=21&amp;#10;trigger_base_val_retrieval = 0&amp;#10;trigger_base_val_retrieval_distractor = 100" valType="extendedCode" updates="constant" name="Begin Experiment"/>
+        <Param val="t_img_retrieval = 5;&amp;#10;t_isi_retrieval = 2.5;&amp;#10;t_buffer = 10;&amp;#10;image_size = 0.5;&amp;#10;t_fixation_cross = 1.5;&amp;#10;n_retrieval_trials_prac = 6;&amp;#10;n_retrieval_trials = 188;&amp;#10;n_retrieval2_trials = 188;&amp;#10;cross_color = [(- 0.5), (- 0.5), (- 0.5)];&amp;#10;letter_height = 0.06;&amp;#10;language = &quot;german&quot;;&amp;#10;if ((session === 2.toString())) {&amp;#10;    retrieval_trials_prac.finished = true;&amp;#10;    retrieval_repetition.finished = true;&amp;#10;    retrieval_trials.finished = true;&amp;#10;}&amp;#10;trigger_img = {};&amp;#10;trigger_img[&quot;dog&quot;] = 1;&amp;#10;trigger_img[&quot;car&quot;] = 2;&amp;#10;trigger_img[&quot;flower&quot;] = 3;&amp;#10;trigger_img[&quot;face&quot;] = 4;&amp;#10;trigger_break_start = 91;&amp;#10;trigger_break_stop = 92;&amp;#10;trigger_buf_start = 61;&amp;#10;trigger_buf_stop = 62;&amp;#10;trigger_fixation_pre1 = 81;&amp;#10;trigger_fixation_pre2 = 82;&amp;#10;trigger_base_val_retrieval = 0;&amp;#10;trigger_base_val_retrieval_distractor = 100;&amp;#10;" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
         <Param val="" valType="extendedCode" updates="constant" name="Begin Routine"/>
         <Param val="Auto-&gt;JS" valType="str" updates="None" name="Code Type"/>
@@ -1484,7 +1484,7 @@
         <Param val="" valType="extendedCode" updates="constant" name="Begin Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
-        <Param val="# reset counters&amp;#10;i_retrieval = 0&amp;#10;false_alarms = 0&amp;#10;misses = 0&amp;#10;incorrect_associations = 0" valType="extendedCode" updates="constant" name="Begin Routine"/>
+        <Param val="# reset counters&amp;#10;i_retrieval = 0&amp;#10;false_alarms = 0&amp;#10;misses = 0&amp;#10;incorrect_associations = 0&amp;#10;" valType="extendedCode" updates="constant" name="Begin Routine"/>
         <Param val="Py" valType="str" updates="None" name="Code Type"/>
         <Param val="" valType="extendedCode" updates="constant" name="Each Frame"/>
         <Param val="" valType="extendedCode" updates="constant" name="Each JS Frame"/>
@@ -1494,6 +1494,76 @@
         <Param val="" valType="extendedCode" updates="constant" name="End Routine"/>
         <Param val="False" valType="bool" updates="None" name="disabled"/>
         <Param val="code_12" valType="code" updates="None" name="name"/>
+      </CodeComponent>
+    </Routine>
+    <Routine name="df_marking_1">
+      <RoutineSettingsComponent name="df_marking_1" plugin="None">
+        <Param val="none" valType="str" updates="None" name="backgroundFit"/>
+        <Param val="" valType="str" updates="None" name="backgroundImg"/>
+        <Param val="$[0,0,0]" valType="color" updates="None" name="color"/>
+        <Param val="rgb" valType="str" updates="None" name="colorSpace"/>
+        <Param val="" valType="str" updates="constant" name="desc"/>
+        <Param val="False" valType="bool" updates="None" name="disabled"/>
+        <Param val="" valType="code" updates="None" name="durationEstim"/>
+        <Param val="False" valType="code" updates="None" name="forceNonSlip"/>
+        <Param val="df_marking_1" valType="code" updates="None" name="name"/>
+        <Param val="True" valType="bool" updates="None" name="saveStartStop"/>
+        <Param val="" valType="code" updates="constant" name="skipIf"/>
+        <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
+        <Param val="" valType="code" updates="constant" name="stopVal"/>
+        <Param val="False" valType="bool" updates="None" name="useWindowParams"/>
+      </RoutineSettingsComponent>
+      <CodeComponent name="df_trial" plugin="None">
+        <Param val="" valType="extendedCode" updates="constant" name="Before Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Before JS Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Begin Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
+        <Param val="df_trial = df_retrieval_1.iloc[i_retrieval]&amp;#10;print (df_trial)" valType="extendedCode" updates="constant" name="Begin Routine"/>
+        <Param val="Py" valType="str" updates="None" name="Code Type"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Each Frame"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Each JS Frame"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End JS Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End JS Routine"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End Routine"/>
+        <Param val="False" valType="bool" updates="None" name="disabled"/>
+        <Param val="df_trial" valType="code" updates="None" name="name"/>
+      </CodeComponent>
+    </Routine>
+    <Routine name="df_marking_2">
+      <RoutineSettingsComponent name="df_marking_2" plugin="None">
+        <Param val="none" valType="str" updates="None" name="backgroundFit"/>
+        <Param val="" valType="str" updates="None" name="backgroundImg"/>
+        <Param val="$[0,0,0]" valType="color" updates="None" name="color"/>
+        <Param val="rgb" valType="str" updates="None" name="colorSpace"/>
+        <Param val="" valType="str" updates="constant" name="desc"/>
+        <Param val="False" valType="bool" updates="None" name="disabled"/>
+        <Param val="" valType="code" updates="None" name="durationEstim"/>
+        <Param val="False" valType="code" updates="None" name="forceNonSlip"/>
+        <Param val="df_marking_2" valType="code" updates="None" name="name"/>
+        <Param val="True" valType="bool" updates="None" name="saveStartStop"/>
+        <Param val="" valType="code" updates="constant" name="skipIf"/>
+        <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
+        <Param val="" valType="code" updates="constant" name="stopVal"/>
+        <Param val="False" valType="bool" updates="None" name="useWindowParams"/>
+      </RoutineSettingsComponent>
+      <CodeComponent name="df_trial_2" plugin="None">
+        <Param val="" valType="extendedCode" updates="constant" name="Before Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Before JS Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Begin Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
+        <Param val="df_trial = df_retrieval_2.iloc[i_retrieval]&amp;#10;print (df_trial)&amp;#10;&amp;#10;if session == 2:&amp;#10;    df_trial = df_retrieval_3.iloc[i_retrieval]&amp;#10;    print (df_trial)" valType="extendedCode" updates="constant" name="Begin Routine"/>
+        <Param val="Py" valType="str" updates="None" name="Code Type"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Each Frame"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Each JS Frame"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End JS Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End JS Routine"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End Routine"/>
+        <Param val="False" valType="bool" updates="None" name="disabled"/>
+        <Param val="df_trial_2" valType="code" updates="None" name="name"/>
       </CodeComponent>
     </Routine>
   </Routines>
@@ -1524,6 +1594,7 @@
       <Param name="name" updates="None" val="retrieval_trials_prac" valType="code"/>
       <Param name="random seed" updates="None" val="" valType="code"/>
     </LoopInitiator>
+    <Routine name="df_marking_1"/>
     <Routine name="fixation_cross"/>
     <Routine name="sound_word"/>
     <Routine name="decision_newword"/>
@@ -1544,6 +1615,7 @@
       <Param name="name" updates="None" val="retrieval_trials" valType="code"/>
       <Param name="random seed" updates="None" val="" valType="code"/>
     </LoopInitiator>
+    <Routine name="df_marking_1"/>
     <Routine name="fixation_cross"/>
     <Routine name="sound_word"/>
     <Routine name="decision_newword"/>
@@ -1564,6 +1636,7 @@
       <Param name="name" updates="None" val="retrieval2_trials" valType="code"/>
       <Param name="random seed" updates="None" val="" valType="code"/>
     </LoopInitiator>
+    <Routine name="df_marking_2"/>
     <Routine name="fixation_cross"/>
     <Routine name="sound_word"/>
     <Routine name="decision_newword"/>

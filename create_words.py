@@ -28,7 +28,7 @@ np.random.seed(0)
 
 #%% SETTINGS
 n_syllables = 2
-n_verbs = 168
+n_verbs = 128 + 64*3  # 128 pairings + 3x new words at retrieval
 
 # exclude some profane and too long words
 excluded = ['ficken', 'lutschen', 'furzen', 'poppen', 'zwiebeln', 'fohlen',

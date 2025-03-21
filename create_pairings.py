@@ -33,7 +33,7 @@ n_participants = 32        # how many participants should be created
 n_localizer = 256          # how many localizer images
 n_pairings = 128           # how many word pairings we want to create
 n_cued = n_pairings//2//2  # how many words should be cued at night
-n_lures_retrieval = 40     # how many new images to insert into retrieval session
+n_lures_retrieval = 64     # how many new images to insert into retrieval session
 perc_upside_down = 0.125   # how many images should be presented upside down in localizer
 n_categories = len(categories)
 
@@ -65,7 +65,7 @@ all_pairings = set()  # Track all word-image pairings used to avoid duplicates
 all_words = list(pd.read_excel('stimuli/words_de.xlsx').word.values.squeeze())
 
 # Verify we have exactly the number of words needed
-assert len(all_words) == n_pairings+n_lures_retrieval, \
+assert len(all_words) == n_pairings+(n_lures_retrieval*3), \
     f"Expected exactly {n_pairings+n_lures_retrieval} words, got {len(all_words)}"
 
 # Load all images once or create mock data if needed
@@ -383,7 +383,7 @@ for subj in range(n_participants):
 
         has_more_than_three_in_a_row = True
         while has_more_than_three_in_a_row:
-            df_retrieval = df_retrieval.sample(frac=1)
+            df_retrieval = df_retrieval.sample(frac=1).reset_index(drop=True)
             has_more_than_three_in_a_row = tools.longest_streak(df_retrieval.category.values)>3
 
 
