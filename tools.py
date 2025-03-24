@@ -9,8 +9,12 @@ import random
 import networkx as nx
 import numpy as np
 import warnings
+import hashlib
+
 
 # Create all possible (n-1)-tuples
+
+
 def generate_tuples(alphabet, length, current=""):
     if length == 0:
         return [current]
