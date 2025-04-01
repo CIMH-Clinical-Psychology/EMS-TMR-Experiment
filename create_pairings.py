@@ -27,7 +27,7 @@ os.makedirs('sequences', exist_ok=True)
 
 
 #%% SETTINGS
-categories = ['car', 'face', 'flower', 'dog']
+categories = ['house', 'face', 'flower', 'dog']
 
 n_participants = 32        # how many participants should be created
 n_localizer = 256          # how many localizer images
@@ -69,10 +69,17 @@ assert len(all_words) == n_pairings+(n_lures_retrieval*3), \
     f"Expected exactly {n_pairings+n_lures_retrieval} words, got {len(all_words)}"
 
 # Load all images once or create mock data if needed
-all_images = {}
+# already sort the images into learning/localizer/lures
+images_localizer = {}
+images_learning = {}
+images_lures = {}
+
 for category in categories:
     files = sorted(os.listdir(f'stimuli/{category}/'))
     files = [f'{category}/{f}' for f in files if f.endswith('.png')]
+
+    images_learning[category] = files[:n_pairings//n_categories]
+
     all_images[category] = files
 
 # Create word-category tracker for balancing word assignments across participants
