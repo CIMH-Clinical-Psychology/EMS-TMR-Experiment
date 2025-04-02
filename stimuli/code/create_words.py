@@ -28,7 +28,7 @@ np.random.seed(0)
 
 #%% SETTINGS
 n_syllables = 2
-n_verbs = 128 + 64*3  # 128 pairings + 3x new words at retrieval
+n_verbs = 128 + 64*3 + 16  # 128 pairings + 3x new words at retrieval + 16 controls
 
 # exclude some profane and too long words
 excluded = ['ficken', 'lutschen', 'furzen', 'poppen', 'zwiebeln', 'fohlen',
@@ -36,7 +36,17 @@ excluded = ['ficken', 'lutschen', 'furzen', 'poppen', 'zwiebeln', 'fohlen',
             'stöhnen', 'blasen']
 excluded += ['aussteigen']  # too long if spoken
 
+# excluded in round 2
+excluded += ['vögeln', 'piepen', 'sondern', 'widmen', 'nullen', 'beichten',
+              'bomben', 'checken', 'daten', 'dingen', 'flammen', 'frischen',
+              'grenzen', 'langen', 'lauten', 'nähern', 'osten', 'polen',
+              'regen', 'russen', 'schlampen', 'sieben', 'socken', 'spuren',
+              'tagen', 'währen', 'stunden']
+# excluded round 3
+excluded += ['scheißen', 'kugeln', 'erden', 'schelten', 'kotzen', 'ketten']
+
 wordlist = 'https://gist.githubusercontent.com/wanderingstan/7eaaf0e22461b505c749e268c0b72bc4/raw/12ebe211a929f039791dfeaa1a019b64cadddaf1/top-german-verbs.csv'
+
 #%% get verb list
 
 # Fetches a list of German verbs sorted by frequency of usage.
@@ -111,4 +121,4 @@ df_words = df_words.sample(frac=1).reset_index(drop=True)
 df_words.rename({'Infinitiv':'word', 'Freq':'freq', 'Rank':'rank'}, axis=1, inplace=True)
 df_words = df_words[['word', 'rank', 'freq']]
 
-df_words.to_excel('./words_de.xlsx')
+df_words.to_excel('../words_de.xlsx')
