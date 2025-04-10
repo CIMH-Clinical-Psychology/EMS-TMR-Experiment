@@ -32,7 +32,7 @@ from joblib import Parallel, delayed
 from httpx import ConnectError
 # client = Client("http://127.0.0.1:7860/")
 
-folder = './stimuli_1/houses2.0/'
+folder = '../house/square/'
 images = [os.path.join(folder, f)  for f in os.listdir(folder) if f.endswith('.jpg')]
 out_folder = folder + '/square_flux'
 os.makedirs(out_folder, exist_ok=True)

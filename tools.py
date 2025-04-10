@@ -9,11 +9,97 @@ import random
 import networkx as nx
 import numpy as np
 import warnings
-import hashlib
+import pandas as pd
+import math
 
 
 # Create all possible (n-1)-tuples
 
+def assign_retrieval_other_old(original_df):
+    """this is a Gemini2.5pro translated version of Julis code to balance
+    the stimuli that can be found here: https://gitlab.zi.local/klips/panosam-code/anticlust_ems_tmr/-/blob/main/01_retrieval_lists.R"""
+    counts_df = original_df.groupby(['category', 'cued'], observed=False).size().reset_index(name='n')
+    categories_list = list(set(original_df.category))
+    cued_categories = list(set(original_df[original_df.cued].category))
+
+    x = original_df.copy()
+    x['other_old'] = pd.NA
+
+    for i, row in counts_df.iterrows():
+        current_category = row['category']
+        current_cued_status = row['cued']
+        n_to_sample_total = row['n']
+
+        sample_cats = [cat for cat in categories_list if cat != current_category]
+        num_sample_cats = len(sample_cats)
+
+        for cat in sample_cats:
+            assigned_stims_so_far = x['other_old'].dropna().tolist()
+
+            if cat in cued_categories:
+                n_needed_per_group = math.floor(n_to_sample_total / num_sample_cats / 2)
+
+                available_cued_indices = x.index[
+                    (x['category'] == cat) &
+                    x['cued'] &
+                    ~x['correct'].isin(assigned_stims_so_far)
+                ].tolist()
+                available_uncued_indices = x.index[
+                    (x['category'] == cat) &
+                    ~x['cued'] &
+                    ~x['correct'].isin(assigned_stims_so_far)
+                ].tolist()
+
+                sampled_cued_indices = random.sample(available_cued_indices, k=n_needed_per_group)
+                sampled_uncued_indices = random.sample(available_uncued_indices, k=n_needed_per_group)
+
+                temp_sample_indices = sampled_cued_indices + sampled_uncued_indices
+                random.shuffle(temp_sample_indices)
+                temp_stims = x.loc[temp_sample_indices, 'correct'].tolist()
+
+            else: # cat is not cued
+                n_needed = math.floor(n_to_sample_total / num_sample_cats)
+                available_indices = x.index[
+                    (x['category'] == cat) &
+                    ~x['correct'].isin(assigned_stims_so_far) # All are uncued implicitly if cat not in cued_cats
+                ].tolist()
+
+                temp_sample_indices = random.sample(available_indices, k=n_needed)
+                random.shuffle(temp_sample_indices)
+                temp_stims = x.loc[temp_sample_indices, 'correct'].tolist()
+
+            assign_to_indices = x.index[
+                (x['category'] == current_category) &
+                (x['cued'] == current_cued_status) &
+                x['other_old'].isna()
+            ].tolist()
+
+            assign_to_sample = random.sample(assign_to_indices, k=len(temp_stims))
+            x.loc[assign_to_sample, 'other_old'] = temp_stims
+    new_df = x
+    empty_slots_indices = new_df.index[new_df['other_old'].isna() & (new_df['correct'] != "none")]
+    assigned_stims = new_df['other_old'].dropna().tolist()
+    to_assign_df = new_df[~new_df['correct'].isin(assigned_stims) & (new_df['correct'] != "none")]
+    remaining_stims_to_assign = to_assign_df['correct'].tolist()
+
+    if len(empty_slots_indices) == len(remaining_stims_to_assign):
+        random.shuffle(remaining_stims_to_assign)
+        new_df.loc[empty_slots_indices, 'other_old'] = remaining_stims_to_assign
+
+    # Derive other_cat and handle potential conflicts
+    new_df['other_cat'] = new_df['other_old'].astype(str).str.replace('/.*$', '', regex=True)
+    new_df['other_cat'] = new_df['other_cat'].replace({'<NA>': 'none', 'nan': 'none'}) # Handle potential string representations of NA
+    new_df.loc[new_df['other_old'].isna(), 'other_cat'] = 'none' # Ensure actual NAs become 'none'
+
+    filter_condition = new_df['category'] != "none"
+    while (new_df.loc[filter_condition, 'category'] == new_df.loc[filter_condition, 'other_cat']).any():
+        random.shuffle(remaining_stims_to_assign)
+        new_df.loc[empty_slots_indices, 'other_old'] = remaining_stims_to_assign
+        new_df['other_cat'] = new_df['other_old'].astype(str).str.replace('/.*$', '', regex=True)
+        new_df['other_cat'] = new_df['other_cat'].replace({'<NA>': 'none', 'nan': 'none'})
+        new_df.loc[new_df['other_old'].isna(), 'other_cat'] = 'none'
+
+    return new_df
 
 def generate_tuples(alphabet, length, current=""):
     if length == 0:
