@@ -23,8 +23,8 @@ from sklearn.utils import shuffle
 from collections import defaultdict
 os.makedirs('sequences', exist_ok=True)
 
-np.random.seed(42)
-random.seed(42)
+np.random.seed(40)
+random.seed(40)
 
 
 #%% SETTINGS
@@ -612,6 +612,7 @@ for subj in range(1, 1+n_participants):
     new_words = []
     old_words = []
     new_images = []
+    new_words_lures = []
     for session in [1,2,3]:
         df = pd.read_excel(f'sequences/{subj:02d}_retrieval_{session}.xlsx')
         df_old = df[~df.is_new]
@@ -638,7 +639,6 @@ for subj in range(1, 1+n_participants):
         both_lures = [x for x in df_old.img_other_old] + [x for x in df_old.img_same_old]
         imgs, counts = np.unique(df_old.img_other_old, return_counts=True)
         assert np.std(counts)==0, 'some lure images are shown more often than others'
-        continue
 
         if session==3:
             # check that categories appear equally often
@@ -655,6 +655,14 @@ for subj in range(1, 1+n_participants):
             x = pd.concat([df.image_left, df.image_top, df.image_right, df.image_bottom])
             imgs, counts = np.unique(x, return_counts=True)
             assert set(counts)== {1, 5}, 'some images are shown more often than others!'
+
+            # check that all images for new words are actually new
+            df_new = df[df.correct=='none']
+            new_words_lures.extend(df_new.image_bottom)
+            new_words_lures.extend(df_new.image_top)
+            new_words_lures.extend(df_new.image_left)
+            new_words_lures.extend(df_new.image_right)
+            assert len(set(new_words_lures))*2==len(new_words_lures)
 
     # check each lure word/image is unique
 

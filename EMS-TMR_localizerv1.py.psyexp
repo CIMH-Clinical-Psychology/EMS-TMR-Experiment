@@ -71,7 +71,7 @@
     <Param val="1000" valType="num" updates="None" name="plPupilRemoteTimeoutMs"/>
     <Param val="False" valType="bool" updates="None" name="plPupillometryOnly"/>
     <Param val="psychopy_iohub_surface" valType="str" updates="None" name="plSurfaceName"/>
-    <Param val="1" valType="code" updates="None" name="runMode"/>
+    <Param val="0" valType="code" updates="None" name="runMode"/>
     <Param val="False" valType="bool" updates="None" name="rush"/>
     <Param val="time" valType="str" updates="None" name="sortColumns"/>
     <Param val="" valType="str" updates="None" name="tbLicenseFile"/>
@@ -182,12 +182,12 @@
         <Param val="" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
         <Param val="df_block = df_localizer[df_localizer['block']==i_block].reset_index(drop = True)&amp;#10;df_trial = df_block.iloc[i_localizer]&amp;#10;&amp;#10;localizer_img.image = &quot;stimuli/&quot; + df_trial.image&amp;#10;t_isi_localizer = df_trial.iti&amp;#10;&amp;#10;is_distractor = df_trial.distractor&amp;#10;&amp;#10;# prevent inactive sound from blocking trial finish&amp;#10;sound_correct.status = FINISHED&amp;#10;sound_wrong.status = FINISHED&amp;#10;played = False&amp;#10;&amp;#10;if is_distractor:&amp;#10;    localizer_img.ori  = 180 #image flipped&amp;#10;else:&amp;#10;    localizer_img.ori  = 0&amp;#10;&amp;#10;msg = f'block {i_block}/{n_blocks}-1 trial {i_localizer}/{len(df_block)}'&amp;#10;msg += f' {&quot;[FLIPPED]&quot; if is_distractor else &quot;&quot;} isi={t_isi_localizer:.2f}s'&amp;#10;print(msg)&amp;#10;&amp;#10;# set the break conditional to true to display a break&amp;#10;break_conditional_nReps = int(i_block in breaks_after_block)" valType="extendedCode" updates="constant" name="Begin Routine"/>
         <Param val="Py" valType="str" updates="None" name="Code Type"/>
-        <Param val="# play for wrong/correct button presses&amp;#10;if len(key_resp_localizer.keys) and not played:&amp;#10;    played = True&amp;#10;    send_trigger(55, duration=0.005)&amp;#10;    if is_distractor:&amp;#10;        sound_correct.play()&amp;#10;        log('Correct press')&amp;#10;    else:&amp;#10;        sound_wrong.play()&amp;#10;        false_alarms += 1&amp;#10;        log('False alarm')&amp;#10;&amp;#10;# play error in case of missed button press&amp;#10;if is_distractor and key_resp_localizer.status==FINISHED and not played:&amp;#10;    played = True&amp;#10;    sound_wrong.play()&amp;#10;    misses += 1&amp;#10;    log('Miss')&amp;#10;&amp;#10;&amp;#10;&amp;#10;sound_correct.status = FINISHED&amp;#10;sound_wrong.status = FINISHED" valType="extendedCode" updates="constant" name="Each Frame"/>
+        <Param val="# play for wrong/correct button presses&amp;#10;if len(key_resp_localizer.keys) and not played:&amp;#10;    played = True&amp;#10;    send_trigger(55, duration=0.005)&amp;#10;    if is_distractor:&amp;#10;        sound_correct.play()&amp;#10;        log('Correct press')&amp;#10;        responslog.write(session = &quot;exp&quot;,trial_num= i_localizer, trial_type= &quot;distractor&quot;, response='press', response_type='correct_dis')&amp;#10;    else:&amp;#10;        sound_wrong.play()&amp;#10;        false_alarms += 1&amp;#10;        log('False alarm')&amp;#10;        responslog.write(session = &quot;exp&quot;,trial_num= i_localizer, trial_type= &quot;distractor&quot;, response='press', response_type='false_alarm')&amp;#10;&amp;#10;# play error in case of missed button press&amp;#10;if is_distractor and key_resp_localizer.status==FINISHED and not played:&amp;#10;    played = True&amp;#10;    sound_wrong.play()&amp;#10;    misses += 1&amp;#10;    log('Miss')&amp;#10;    responslog.write(session = &quot;exp&quot;,trial_num= i_localizer, trial_type= &quot;distractor&quot;, response='no_press', response_type='miss')&amp;#10;&amp;#10;&amp;#10;sound_correct.status = FINISHED&amp;#10;sound_wrong.status = FINISHED" valType="extendedCode" updates="constant" name="Each Frame"/>
         <Param val="" valType="extendedCode" updates="constant" name="Each JS Frame"/>
         <Param val="" valType="extendedCode" updates="constant" name="End Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="End JS Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="End JS Routine"/>
-        <Param val="i_localizer+=1" valType="extendedCode" updates="constant" name="End Routine"/>
+        <Param val="if not is_distractor and key_resp_localizer.status==FINISHED and not played:&amp;#10;    responslog.write(session = &quot;exp&quot;,trial_num= i_localizer, trial_type= &quot;no_distractor&quot;, response='no_press', response_type='correct')&amp;#10;&amp;#10;i_localizer+=1" valType="extendedCode" updates="constant" name="End Routine"/>
         <Param val="False" valType="bool" updates="None" name="disabled"/>
         <Param val="localizer_code" valType="code" updates="None" name="name"/>
       </CodeComponent>
@@ -655,6 +655,23 @@
         <Param val="" valType="extendedCode" updates="constant" name="End Routine"/>
         <Param val="False" valType="bool" updates="None" name="disabled"/>
         <Param val="functions" valType="code" updates="None" name="name"/>
+      </CodeComponent>
+      <CodeComponent name="save_data" plugin="None">
+        <Param val="" valType="extendedCode" updates="constant" name="Before Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Before JS Experiment"/>
+        <Param val="import pandas as pd&amp;#10;import datetime&amp;#10;&amp;#10;class ResponseLog:&amp;#10;&amp;#10;    def __init__(self, filename):&amp;#10;        self.filename = filename&amp;#10;        self.df = pd.DataFrame()&amp;#10;&amp;#10;    def write(self, **kwargs):&amp;#10;        # Add timestamp&amp;#10;        row_data = {'timestamp': str(datetime.datetime.now())}&amp;#10;&amp;#10;        # Add all kwargs to row data&amp;#10;        row_data.update(kwargs)&amp;#10;&amp;#10;        # Create a single-row DataFrame&amp;#10;        new_row = pd.DataFrame([row_data])&amp;#10;&amp;#10;        # Append to existing DataFrame&amp;#10;        self.df = pd.concat([self.df, new_row], ignore_index=True)&amp;#10;&amp;#10;        # Save to CSV&amp;#10;        self.df.to_csv(self.filename, index=False)&amp;#10;&amp;#10;        return self.df&amp;#10;&amp;#10;responslog = ResponseLog(u'data/%s_%s_%s' % (expInfo['participant'], expName, expInfo['date']) + '_responses.csv')" valType="extendedCode" updates="constant" name="Begin Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Begin JS Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Begin Routine"/>
+        <Param val="Py" valType="str" updates="None" name="Code Type"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Each Frame"/>
+        <Param val="" valType="extendedCode" updates="constant" name="Each JS Frame"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End JS Experiment"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End JS Routine"/>
+        <Param val="" valType="extendedCode" updates="constant" name="End Routine"/>
+        <Param val="False" valType="bool" updates="None" name="disabled"/>
+        <Param val="save_data" valType="code" updates="None" name="name"/>
       </CodeComponent>
     </Routine>
     <Routine name="buffer">
@@ -1532,7 +1549,7 @@
         <Param val="duration (s)" valType="str" updates="None" name="stopType"/>
         <Param val="5" valType="code" updates="constant" name="stopVal"/>
         <Param val="True" valType="bool" updates="None" name="syncScreenRefresh"/>
-        <Param val="Die Übung ist nun beendet. &amp;#10;&amp;#10;Bitte melde dich beim Experimentleiter." valType="str" updates="constant" name="text"/>
+        <Param val="Die Aufgabe ist nun beendet. &amp;#10;&amp;#10;Bitte melde dich beim Experimentleiter." valType="str" updates="constant" name="text"/>
         <Param val="from exp settings" valType="str" updates="None" name="units"/>
         <Param val="" valType="code" updates="None" name="validator"/>
         <Param val="" valType="num" updates="constant" name="wrapWidth"/>
@@ -2907,12 +2924,12 @@
         <Param val="" valType="extendedCode" updates="constant" name="Begin JS Routine"/>
         <Param val="df_trial_prac = df_localizer_prac.iloc[i_localizer]&amp;#10;print (df_trial_prac)&amp;#10;&amp;#10;localizer_img_2.image = &quot;stimuli/&quot; + df_trial_prac.image&amp;#10;t_isi_localizer_2 = df_trial_prac.iti&amp;#10;is_distractor = df_trial_prac.distractor&amp;#10;       &amp;#10;if is_distractor:&amp;#10;    localizer_img_2.ori  = 180 #image flipped&amp;#10;else:&amp;#10;    localizer_img_2.ori  = 0&amp;#10;    &amp;#10;# prevent inactive sound from blocking trial finish&amp;#10;sound_correct_2.status = FINISHED&amp;#10;sound_wrong_2.status = FINISHED&amp;#10;played = False&amp;#10;&amp;#10;# debug printing&amp;#10;msg = f'practice {i_localizer}/{len(df_trial_prac)}'&amp;#10;msg += f' {&quot;[FLIPPED]&quot; if is_distractor else &quot;&quot;} isi={t_isi_localizer:.2f}s'&amp;#10;log(msg)&amp;#10;" valType="extendedCode" updates="constant" name="Begin Routine"/>
         <Param val="Py" valType="str" updates="None" name="Code Type"/>
-        <Param val="# play for wrong/correct button presses&amp;#10;if len(key_resp_localizer_2.keys) and not played:&amp;#10;    played = True&amp;#10;    if is_distractor:&amp;#10;        sound_correct_2.play()&amp;#10;        log('Correct press')&amp;#10;    else:&amp;#10;        sound_wrong_2.play()&amp;#10;        false_alarms += 1&amp;#10;        log('False alarm')&amp;#10;&amp;#10;# play error in case of missed button press&amp;#10;if is_distractor and key_resp_localizer_2.status==FINISHED and not played:&amp;#10;    played = True&amp;#10;    sound_wrong_2.play()&amp;#10;    misses += 1&amp;#10;    log('Miss')&amp;#10;    &amp;#10;&amp;#10;sound_correct_2.status = FINISHED&amp;#10;sound_wrong_2.status = FINISHED" valType="extendedCode" updates="constant" name="Each Frame"/>
+        <Param val="# play for wrong/correct button presses&amp;#10;if len(key_resp_localizer_2.keys) and not played:&amp;#10;    played = True&amp;#10;    if is_distractor:&amp;#10;        sound_correct_2.play()&amp;#10;        log('Correct press')&amp;#10;        responslog.write(session = &quot;practice&quot;,trial_num= i_localizer, trial_type= &quot;distractor&quot;, response='press', response_type='correct_dis')&amp;#10;    else:&amp;#10;        sound_wrong_2.play()&amp;#10;        false_alarms += 1&amp;#10;        log('False alarm')&amp;#10;        responslog.write(session = &quot;practice&quot;,trial_num= i_localizer, trial_type= &quot;no_distractor&quot;, response='press', response_type='false_alarm')&amp;#10;&amp;#10;# play error in case of missed button press&amp;#10;if is_distractor and key_resp_localizer_2.status==FINISHED and not played:&amp;#10;    played = True&amp;#10;    sound_wrong_2.play()&amp;#10;    misses += 1&amp;#10;    log('Miss')&amp;#10;    responslog.write(session = &quot;practice&quot;,trial_num= i_localizer, trial_type= &quot;distractor&quot;, response='no_press', response_type='miss')&amp;#10;    &amp;#10;  &amp;#10;sound_correct_2.status = FINISHED&amp;#10;sound_wrong_2.status = FINISHED&amp;#10;&amp;#10;" valType="extendedCode" updates="constant" name="Each Frame"/>
         <Param val="" valType="extendedCode" updates="constant" name="Each JS Frame"/>
         <Param val="" valType="extendedCode" updates="constant" name="End Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="End JS Experiment"/>
         <Param val="" valType="extendedCode" updates="constant" name="End JS Routine"/>
-        <Param val="i_localizer+=1" valType="extendedCode" updates="constant" name="End Routine"/>
+        <Param val="if not is_distractor and key_resp_localizer_2.status==FINISHED and not played:&amp;#10;    responslog.write(session = &quot;practice&quot;,trial_num= i_localizer, trial_type= &quot;no_distractor&quot;, response='no_press', response_type='correct')&amp;#10;&amp;#10;i_localizer+=1" valType="extendedCode" updates="constant" name="End Routine"/>
         <Param val="False" valType="bool" updates="None" name="disabled"/>
         <Param val="localizer_code_2" valType="code" updates="None" name="name"/>
       </CodeComponent>
