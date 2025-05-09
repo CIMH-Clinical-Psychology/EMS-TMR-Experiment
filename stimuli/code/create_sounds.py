@@ -83,7 +83,7 @@ def save_tts_google(word, filename, language_code="de-DE", target_length=1):
     final_duration = len(audio) / 1000
 
     return final_duration, speaking_rate
-asd
+
 #%% make the 2-syllable words
 
 target_length = 0.85
@@ -149,9 +149,9 @@ df_words.to_excel('../words_de_3_silben.xlsx')
 
 #%% make the sound check-syllable words
 
-target_length = 0.95
+target_length = 1.15
 
-df_words = pd.read_excel('../../sequences/soundcheck.xlsx', index_col=0)
+df_words = pd.read_excel('../../sequences/soundcheck.xlsx', index_col=None)
 
 os.makedirs('../sounds/', exist_ok=True)
 
