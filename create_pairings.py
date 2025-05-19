@@ -284,9 +284,8 @@ for participant in range(1, n_participants+1):
     # Sanity check for duplicates
     assert len(set(df_cues.word)) == len(df_cues), 'Sanity check failed, some words are doubled'
 
-    # Shuffle dataframe to randomize presentation order
     df_cues = df_cues.fillna(nan_value)
-    df_cues.to_excel(f'sequences/{participant:02d}_cues.xlsx', index=False)
+    df_cues.to_excel(f'sequences/{participant:02d}_cues_backup.xlsx', index=False)
     #%% 4. retrieval cue selection
     # we need three retrieval sessions, one with feedback and two without
     imgs_lure = {cat: shuffle(images_lures[cat].copy()) for cat in categories}
@@ -580,7 +579,7 @@ cats, counts = np.unique(cues_sorted, axis=None, return_counts=True)
 assert len(set(counts))==1, 'Warning, not all categories are cued equally often'
 assert np.ptp(counts)<=1, 'warning, discrepancy in number of cued tuples'
 
-dfs = [pd.read_excel(f'sequences/{subj:02d}_cues.xlsx') for subj in range(1, 1+n_participants)]
+dfs = [pd.read_excel(f'sequences/{subj:02d}_cues_backup.xlsx') for subj in range(1, 1+n_participants)]
 
 words_cued = []
 images_cued = []
