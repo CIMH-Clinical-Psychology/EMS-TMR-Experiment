@@ -84,6 +84,7 @@ def save_tts_google(word, filename, language_code="de-DE", target_length=1):
 
     return final_duration, speaking_rate
 
+input('press enter to start creating words')
 #%% make the 2-syllable words
 
 target_length = 0.85
@@ -176,4 +177,4 @@ df_words['length'] = lengths
 df_words['file'] = files
 df_words['speaking_rate'] = speaking_rates
 
-df_words.to_excel('../words_de_3_silben.xlsx')
+df_words.to_excel('../soundcheck.xlsx')

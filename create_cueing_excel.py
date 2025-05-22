@@ -15,6 +15,7 @@ from datetime import datetime
 from anti_clustering import ExchangeHeuristicAntiClustering
 
 def sort_by_timestamp(list_of_files):
+    """extract a timestamp from file name and sort accordingly with newest first"""
     # Regex to extract the timestamp part: YYYY-MM-DD_HHhMM.SS.mmm
     timestamp_pattern = re.compile(r'(\d{4}-\d{2}-\d{2}_\d{2}h\d{2}\.\d{2}\.\d{3})')
 
@@ -57,30 +58,43 @@ if len(files2)>1:
 df_feedback = pd.read_csv(files1[0])
 df_presleep = pd.read_csv(files2[0])
 
-assert len(df_feedback)==320
-assert len(df_presleep)==320
+assert len(df_feedback)==320, 'too few rows! correct file selected?'
+assert len(df_presleep)==320, 'too few rows! correct file selected?'
 
-if any(df_feedback['trial_type'].isna()) or any(df_presleep['trial_type'].isna()):
+### START HACK for missing new/old trial_type
+if ((n_feedback_nan:=df_feedback['trial_type'].isna().sum()) or
+    (n_presleep_nan:=df_presleep['trial_type'].isna().sum())):
+    # necessary for the testing files as the old/new indicator wasn't there for all trials
     import warnings
-    warnings.warn('trial type old/new hack still enabled, should not be the case')
+    n_feedback_nan = df_feedback['trial_type'].isna().sum()
+    n_presleep_nan = df_feedback['trial_type'].isna().sum()
+    warnings.warn(f'trial type old/new hack still enabled, should not be the case. {n_feedback_nan=}, {n_presleep_nan=}')
     counts_feedback = np.bincount(df_feedback.trial_num)
     counts_presleep = np.bincount(df_presleep.trial_num)
     def tyial_type_feedback(x):
         return 'old' if counts_feedback[x]==2 else 'new'
     def tyial_type_presleep(x):
         return 'old' if counts_presleep[x]==2 else 'new'
+    x = df_feedback['trial_type'].copy()
+    oldnew_feedback = df_feedback.trial_num.apply(tyial_type_feedback)
+    oldnew_presleep = df_presleep.trial_num.apply(tyial_type_presleep)
+    # sanity check, existing trial labels should be same
+    assert all([x==y for x,y in zip(df_feedback['trial_type'], oldnew_feedback) if not pd.isna(x)])
+    assert all([x==y for x,y in zip(df_presleep['trial_type'], oldnew_presleep) if not pd.isna(x)])
+    # write back inferred trial labels
+    df_feedback['trial_type'] = oldnew_feedback
+    df_presleep['trial_type'] = oldnew_presleep
+### END HACK
 
-    df_feedback['trial_type'] = df_feedback.trial_num.apply(tyial_type_feedback)
-    df_presleep['trial_type'] = df_presleep.trial_num.apply(tyial_type_presleep)
 
 df_feedback.response = df_feedback.response.apply(lambda x: 'false' if x in ['none', np.nan] else x)
 df_presleep.response = df_presleep.response.apply(lambda x: 'false' if x in ['none', np.nan] else x)
 
 
-df_word1 = df_feedback[(df_feedback.session=='word_feedback') & (df_feedback.trial_type=='old')]
-df_img1 = df_feedback[df_feedback.session=='image_feedback']
-df_word2 = df_presleep[(df_presleep.session=='word_preSleep') & (df_presleep.trial_type=='old')]
-df_img2 = df_presleep[df_presleep.session=='image_preSleep']
+df_word1 = df_feedback[(df_feedback.stimulus_type=='word_feedback') & (df_feedback.trial_type=='old')]
+df_img1 = df_feedback[df_feedback.stimulus_type=='image_feedback']
+df_word2 = df_presleep[(df_presleep.stimulus_type=='word_preSleep') & (df_presleep.trial_type=='old')]
+df_img2 = df_presleep[df_presleep.stimulus_type=='image_preSleep']
 
 
 df1 = pd.DataFrame({'pair': df_word1.stimuli.values + ' - '+ df_img1.stimuli.values,
@@ -118,10 +132,15 @@ for category in categories:
         destination_column='Cluster'
     )
     idx = (df_category.Cluster==1).values
+    types = df_category.img1_correct
     df_cues = pd.concat([df_cues,
                          pd.DataFrame({'word': df_category.word[idx].values,
                                        'image': df_category.image[idx].values,
-                                       'category': df_category.category[idx].values})],
+                                       'category': df_category.category[idx].values,
+                                       'word_feedback_correct' : df_category.word1_correct[idx].values,
+                                       'img_feedback_correct' : df_category.img1_correct[idx].values,
+                                       'word_presleep_correct' : df_category.word2_correct[idx].values,
+                                       'img_presleep_correct' : df_category.img2_correct[idx].values,})],
                         ignore_index=True)
 
 df_cues = df_cues.sample(frac=1).reset_index(drop=True)

@@ -10,3 +10,4 @@ matplotlib
 seaborn
 google-cloud-texttospeech
 pydub
+pycaw

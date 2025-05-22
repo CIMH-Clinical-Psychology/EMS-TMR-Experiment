@@ -14,6 +14,23 @@ import warnings
 import pandas as pd
 import math
 
+from pycaw.pycaw import AudioUtilities, IAudioEndpointVolume
+from ctypes import cast, POINTER
+from comtypes import CLSCTX_ALL
+
+def set_system_volume(level: float):
+    """
+    Set system master volume.
+
+    Parameters:
+    level (float): Volume level between 0.0 (mute) and 1.0 (max)
+    """
+    devices = AudioUtilities.GetSpeakers()
+    interface = devices.Activate(IAudioEndpointVolume._iid_, CLSCTX_ALL, None)
+    volume = cast(interface, POINTER(IAudioEndpointVolume))
+
+    # Set master volume level
+    volume.SetMasterVolumeLevelScalar(level, None)
 
 # Create all possible (n-1)-tuples
 
